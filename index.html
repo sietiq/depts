@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الديون والأقساط</title>
-    <!-- Tailwind CSS للتصميم السريع والعصري -->
+    <title>إدارة الديون والأقساط المتكاملة</title>
+    <!-- Tailwind CSS للتصميم العصري -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- خط العرض العربي Tajawal -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -22,9 +22,9 @@
         <header class="bg-white shadow-md rounded-2xl p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-gray-800">سجل الديون والأقساط</h1>
-                <p class="text-sm text-gray-500 mt-1">إدارة ومتابعة حسابات الزبائن والمبالغ المتبقية بكل سهولة</p>
+                <p class="text-sm text-gray-500 mt-1">إدارة حسابات الزبائن، التعديل، التسديدات، وسجل الحركات بكل سهولة</p>
             </div>
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition duration-200 flex items-center gap-2">
+            <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition duration-200 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -32,7 +32,7 @@
             </button>
         </header>
 
-        <!-- شريط البحث والإحصائيات السريعة -->
+        <!-- الإحصائيات السريعة -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
@@ -76,11 +76,11 @@
                             <th class="p-4">المتبقي</th>
                             <th class="p-4">التاريخ</th>
                             <th class="p-4">الملاحظات</th>
-                            <th class="p-4 text-center">إجراءات</th>
+                            <th class="p-4 text-center">الإجراءات والعمليات</th>
                         </tr>
                     </thead>
                     <tbody id="debtTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                        <!-- تُضاف الصفوف هنا ديناميكياً -->
+                        <!-- الصفوف تُضاف ديناميكياً -->
                     </tbody>
                 </table>
             </div>
@@ -90,12 +90,13 @@
         </div>
     </div>
 
-    <!-- نافذة منبثقة (Modal) لإضافة زبون -->
+    <!-- 1. نافذة إضافة أو تعديل زبون -->
     <div id="debtModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">إضافة سجل دين جديد</h2>
+            <h2 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">إضافة سجل دين جديد</h2>
             
             <form id="debtForm" onsubmit="saveDebt(event)">
+                <input type="hidden" id="editIndex" value="-1">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الثلاثي</label>
@@ -108,8 +109,8 @@
                             <input type="tel" id="phone" required class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="07xxxxxxxx">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">رقم الصفحة (تلقائي)</label>
-                            <input type="text" id="pageNumber" readonly class="w-full px-4 py-2 border bg-gray-100 rounded-xl text-gray-500 font-bold">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">رقم الصفحة</label>
+                            <input type="text" id="pageNumber" required class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold">
                         </div>
                     </div>
 
@@ -129,7 +130,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">التاريخ (تلقائي)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">التاريخ</label>
                         <input type="text" id="recordDate" readonly class="w-full px-4 py-2 border bg-gray-100 rounded-xl text-gray-500">
                     </div>
 
@@ -140,43 +141,147 @@
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2 rounded-xl border text-gray-600 hover:bg-gray-50 font-medium">إلغاء</button>
-                    <button type="submit" class="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow">حفظ السجل</button>
+                    <button type="button" onclick="closeModal('debtModal')" class="px-5 py-2 rounded-xl border text-gray-600 hover:bg-gray-50 font-medium">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow">حفظ البيانات</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- كود الجافاسكريبت للتحكم بالصفحة والبيانات -->
+    <!-- 2. نافذة تسديد مبلغ (قسط جديد) -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">تسديد دفعة جديدة</h2>
+            <p id="paymentCustomerName" class="text-sm text-blue-600 font-bold mb-4"></p>
+            
+            <form onsubmit="savePayment(event)">
+                <input type="hidden" id="paymentIndex">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">المبلغ المراد تسديده</label>
+                        <input type="number" id="newPaymentAmount" required class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none text-green-600 font-bold text-lg" placeholder="أدخل مبلغ التسديد">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ملاحظة التسديد (اختياري)</label>
+                        <input type="text" id="paymentNote" class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="دفعة قسط شهر...">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+                    <button type="button" onclick="closeModal('paymentModal')" class="px-5 py-2 rounded-xl border text-gray-600 hover:bg-gray-50 font-medium">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold shadow">تثبيت التسديد</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. نافذة السجل (عرض حركات وحسابات الزبون) -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl relative">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">سجل حركات ودفعات الزبون</h2>
+            <p id="historyCustomerName" class="text-sm text-gray-600 font-bold mb-4"></p>
+            
+            <div class="max-h-60 overflow-y-auto border rounded-xl mb-4">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-gray-50 text-gray-600 border-b">
+                        <tr>
+                            <th class="p-3">التاريخ والوقت</th>
+                            <th class="p-3">نوع الحركة</th>
+                            <th class="p-3">المبلغ</th>
+                            <th class="p-3">ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-gray-100">
+                        <!-- تدرج تفاصيل السجل -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="button" onclick="closeModal('historyModal')" class="px-6 py-2 rounded-xl bg-gray-600 hover:bg-gray-700 text-white font-bold shadow">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!--الجافاسكريبت-->
     <script>
         let debts = JSON.parse(localStorage.getItem('debts_data')) || [];
 
-        // فتح النافذة المنبثقة وتوليد التاريخ ورقم الصفحة تلقائياً
-        function openModal() {
-            document.getElementById('debtModal').classList.remove('hidden');
+        // فتح نافذة الإضافة
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "إضافة سجل دين جديد";
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('debtForm').reset();
             
-            // توليد التاريخ والوقت الحالي
             const now = new Date();
             const formattedDate = now.toLocaleDateString('ar-IQ', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' - ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('recordDate').value = formattedDate;
 
-            // توليد رقم الصفحة تلقائياً (رقم تسلسلي بناءً على عدد العناصر الحالية + 1 أو اعتماداً على الوقت)
             const nextPageIndex = debts.length > 0 ? Math.max(...debts.map(d => parseInt(d.pageNumber) || 0)) + 1 : 1;
             document.getElementById('pageNumber').value = nextPageIndex;
-
-            // تصفير الحقول
-            document.getElementById('debtForm').reset();
-            document.getElementById('recordDate').value = formattedDate;
-            document.getElementById('pageNumber').value = nextPageIndex;
             document.getElementById('remainingAmount').value = 0;
+
+            document.getElementById('debtModal').classList.remove('hidden');
         }
 
-        // إغلاق النافذة
-        function closeModal() {
-            document.getElementById('debtModal').classList.add('hidden');
+        // فتح نافذة التعديل
+        function openEditModal(index) {
+            document.getElementById('modalTitle').innerText = "تعديل معلومات الزبون";
+            document.getElementById('editIndex').value = index;
+            const item = debts[index];
+
+            document.getElementById('fullName').value = item.fullName;
+            document.getElementById('phone').value = item.phone;
+            document.getElementById('pageNumber').value = item.pageNumber;
+            document.getElementById('totalAmount').value = item.totalAmount;
+            document.getElementById('paidAmount').value = item.paidAmount;
+            document.getElementById('remainingAmount').value = item.remainingAmount;
+            document.getElementById('recordDate').value = item.recordDate;
+            document.getElementById('notes').value = item.notes;
+
+            document.getElementById('debtModal').classList.remove('hidden');
         }
 
-        // حساب المبلغ المتبقي تلقائياً
+        // فتح نافذة التسديد
+        function openPaymentModal(index) {
+            document.getElementById('paymentIndex').value = index;
+            document.getElementById('paymentCustomerName').innerText = "الزبون: " + debts[index].fullName + " (المتبقي الحالي: " + debts[index].remainingAmount.toLocaleString() + " د.ع)";
+            document.getElementById('newPaymentAmount').value = '';
+            document.getElementById('paymentNote').value = '';
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        // فتح نافذة السجل
+        function openHistoryModal(index) {
+            const item = debts[index];
+            document.getElementById('historyCustomerName').innerText = "الزبون: " + item.fullName + " | هاتف: " + item.phone;
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (!item.history || item.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">لا توجد حركات مسجلة سوى الإنشاء الأساسي</td></tr>`;
+            } else {
+                item.history.forEach(h => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 text-gray-500">${h.date}</td>
+                            <td class="p-3 font-bold text-blue-600">${h.type}</td>
+                            <td class="p-3 font-bold text-green-600">${h.amount.toLocaleString()} د.ع</td>
+                            <td class="p-3 text-gray-600">${h.note}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        // إغلاق أي نافذة منبثقة
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // حساب المتبقي تلقائياً
         function calculateRemaining() {
             const total = parseFloat(document.getElementById('totalAmount').value) || 0;
             const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
@@ -184,39 +289,84 @@
             document.getElementById('remainingAmount').value = remaining >= 0 ? remaining : 0;
         }
 
-        // حفظ السجل الجديد
+        // حفظ الإضافة أو التعديل
         function saveDebt(event) {
             event.preventDefault();
+            const editIndex = parseInt(document.getElementById('editIndex').value);
 
-            const newRecord = {
-                id: Date.now(),
-                fullName: document.getElementById('fullName').value,
-                phone: document.getElementById('phone').value,
-                pageNumber: document.getElementById('pageNumber').value,
-                totalAmount: parseFloat(document.getElementById('totalAmount').value) || 0,
-                paidAmount: parseFloat(document.getElementById('paidAmount').value) || 0,
-                remainingAmount: parseFloat(document.getElementById('remainingAmount').value) || 0,
-                recordDate: document.getElementById('recordDate').value,
-                notes: document.getElementById('notes').value || 'لا توجد ملاحظات'
-            };
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const pageNumber = document.getElementById('pageNumber').value;
+            const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
+            const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const remainingAmount = parseFloat(document.getElementById('remainingAmount').value) || 0;
+            const recordDate = document.getElementById('recordDate').value;
+            const notes = document.getElementById('notes').value || 'لا توجد ملاحظات';
 
-            debts.push(newRecord);
+            if (editIndex === -1) {
+                // إضافة جديد
+                const newRecord = {
+                    id: Date.now(),
+                    fullName, phone, pageNumber, totalAmount, paidAmount, remainingAmount, recordDate, notes,
+                    history: [{ date: recordDate, type: 'إنشاء الحساب والدين', amount: totalAmount, note: 'المبلغ الإجمالي الكلي' }]
+                };
+                debts.push(newRecord);
+            } else {
+                // تعديل موجود
+                debts[editIndex].fullName = fullName;
+                debts[editIndex].phone = phone;
+                debts[editIndex].pageNumber = pageNumber;
+                debts[editIndex].totalAmount = totalAmount;
+                debts[editIndex].paidAmount = paidAmount;
+                debts[editIndex].remainingAmount = remainingAmount;
+                debts[editIndex].notes = notes;
+            }
+
             localStorage.setItem('debts_data', JSON.stringify(debts));
-
-            closeModal();
+            closeModal('debtModal');
             renderTable();
         }
 
-        // حذف سجل
-        function deleteDebt(id) {
-            if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-                debts = debts.filter(item => item.id !== id);
+        // تنفيذ عملية التسديد
+        function savePayment(event) {
+            event.preventDefault();
+            const index = parseInt(document.getElementById('paymentIndex').value);
+            const payAmount = parseFloat(document.getElementById('newPaymentAmount').value) || 0;
+            const payNote = document.getElementById('paymentNote').value || 'تسديد قسط';
+
+            if (payAmount <= 0) return;
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-IQ', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' - ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            // تحديث الواصل والمتبقي
+            debts[index].paidAmount += payAmount;
+            debts[index].remainingAmount = Math.max(0, debts[index].totalAmount - debts[index].paidAmount);
+
+            // إضافة الحركة إلى سجل الزبون
+            if (!debts[index].history) debts[index].history = [];
+            debts[index].history.push({
+                date: dateStr,
+                type: 'تسديد قسط',
+                amount: payAmount,
+                note: payNote
+            });
+
+            localStorage.setItem('debts_data', JSON.stringify(debts));
+            closeModal('paymentModal');
+            renderTable();
+        }
+
+        // حذف زبون
+        function deleteDebt(index) {
+            if (confirm('هل أنت متأكد من حذف هذا الزبون وسجله بالكامل؟')) {
+                debts.splice(index, 1);
                 localStorage.setItem('debts_data', JSON.stringify(debts));
                 renderTable();
             }
         }
 
-        // عرض البيانات في الجدول وحساب المجاميع
+        // عرض الجدول والإحصائيات
         function renderTable(dataToRender = debts) {
             const tbody = document.getElementById('debtTableBody');
             const emptyState = document.getElementById('emptyState');
@@ -228,11 +378,9 @@
                 emptyState.classList.add('hidden');
             }
 
-            let sumTotal = 0;
-            let sumPaid = 0;
-            let sumRemaining = 0;
+            let sumTotal = 0, sumPaid = 0, sumRemaining = 0;
 
-            dataToRender.forEach(item => {
+            dataToRender.forEach((item, originalIndex) => {
                 sumTotal += item.totalAmount;
                 sumPaid += item.paidAmount;
                 sumRemaining += item.remainingAmount;
@@ -248,24 +396,30 @@
                     <td class="p-4 text-red-600 font-bold">${item.remainingAmount.toLocaleString()} د.ع</td>
                     <td class="p-4 text-xs text-gray-500">${item.recordDate}</td>
                     <td class="p-4 text-xs text-gray-600 max-w-xs truncate" title="${item.notes}">${item.notes}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="deleteDebt(${item.id})" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition" title="حذف السجل">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                    <td class="p-4 text-center flex items-center justify-center gap-1.5 flex-wrap">
+                        <button onclick="openPaymentModal(${originalIndex})" class="bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1" title="تسديد دفعة">
+                            💰 تسديد
+                        </button>
+                        <button onclick="openHistoryModal(${originalIndex})" class="bg-purple-50 hover:bg-purple-100 text-purple-600 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1" title="عرض السجل">
+                            📋 السجل
+                        </button>
+                        <button onclick="openEditModal(${originalIndex})" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1" title="تعديل معلومات">
+                            ✏️ تعديل
+                        </button>
+                        <button onclick="deleteDebt(${originalIndex})" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1" title="حذف">
+                            🗑️ حذف
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // تحديث الإحصائيات في الأعلى
             document.getElementById('totalDebt').innerText = sumTotal.toLocaleString() + ' د.ع';
             document.getElementById('totalPaid').innerText = sumPaid.toLocaleString() + ' د.ع';
             document.getElementById('totalRemaining').innerText = sumRemaining.toLocaleString() + ' د.ع';
         }
 
-        // فلترة الجدول عند البحث
+        // البحث
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = debts.filter(item => 
@@ -276,7 +430,6 @@
             renderTable(filtered);
         }
 
-        // تشغيل العرض عند تحميل الصفحة
         window.onload = function() {
             renderTable();
         };
